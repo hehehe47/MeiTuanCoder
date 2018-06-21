@@ -25,14 +25,36 @@ Examples:
     40 -1
     100 39
 
+
+
+Correct rate:40.47%
 '''
+
+
+def insert_into_list(pro_k, k, pro_indvi):
+    if len(pro_k) < k:
+        pro_k.append(pro_indvi)
+    else:
+        pro_k = sorted(pro_k, reverse=True)
+        last = pro_k.pop()
+        if last < pro_indvi:
+            pro_k.append(pro_indvi)
+            pro2.append(last)
+        else:
+            pro_k.append(last)
+            pro2.append(pro_indvi)
+    return pro_k, pro2
+
+
 n, m, k, c = tuple(map(int, input().split(' ')))
 weight_list = list(map(int, input().split(' ')))
 weight_sum, min_pro, max_pro = 0, 0, 0
 for j in range(m):
     weight_sum += weight_list[j]
 pro = []
+pro_k, pro2 = [], []
 d = {}
+q = 0
 for i in range(n):
     scores = list(map(int, input().split(' ')))
     pro_indvi = 0
@@ -48,27 +70,67 @@ for i in range(n):
             pro_indvi += float(s / c) * float(w / weight_sum)
         max_pro = pro_indvi
         d[i] = -1
+        q = i
         continue
     for s, w in zip(scores, weight_list):
         pro_indvi += float(s / c) * float(w / weight_sum)
     d[i] = pro_indvi
+    pro_k, pro2 = insert_into_list(pro_k, k, pro_indvi)
     pro.append(pro_indvi)
-pro_d = {}
-pro = sorted(pro, reverse=True)
-for idx, p in enumerate(pro):
-    if idx + 1 <= k:
-        pro_d[p] = 1
-    else:
-        pro_d[p] = 2
-for p in pro:
-    if max_pro >= p >= min_pro and pro_d[p] != 2:
-        pro_d[p] = 3
+# pro_d = {}
+# pro = sorted(pro, reverse=True)
+# count, count2 = 0, 1
+# for idx, p in enumerate(pro):
+#     if idx + 1 <= k:
+#         pro_d[p] = 1
+#         count2+=1
+#     elif p not in pro_d.keys():
+#         pro_d[p] = 2
+#     if p >= max_pro:
+#         count += 1
+# for p in pro:
+#     if max_pro >= p >= min_pro and pro_d[p] != 2 and count2 != k:
+#         pro_d[p] = 3
+# if count + 1 == k and max_pro in pro_d and max_pro == pro[count - 1] and count2 != k:
+#     pro_d[max_pro] = 1
+#
+# for i in range(n):
+#     if d[i] != -1:
+#         s = str(pro_d[d[i]])
+#     else:
+#         if count2 == k:
+#             s = str(1)
+#         elif pro_d[max_pro] != 2:
+#             s = str(3)
+#         else:
+#             s = str(2)
+#     if i != n - 1:
+#         s += '\n'
+#     print(s, end='')
+# # print(pro[count])
+# print(pro_k)
+pro_k = sorted(pro_k, reverse=True)
+pd = {}
+for p in pro2:
+    pd[p] = 2
+if len(pro_k) < k:
+    pro_k.append(-1)
+if min_pro > pro_k[k - 1]:
+    pro2.append(pro_k.pop())
+    pd[-1] = 1
+elif max_pro >= pro_k[k - 1]:
+    pd[-1] = 3
+    pd[pro_k[k - 1]] = 3
+else:
+    pd[-1] = 2
+    pd[pro_k[k - 1]] = 1
+# print(pd)
+
 for i in range(n):
-    if d[i] != -1:
-        s = str(pro_d[d[i]])
+    if d[i] not in pd.keys():
+        s = str(1)
     else:
-        s = str(3)
+        s = str(pd[d[i]])
     if i != n - 1:
         s += '\n'
     print(s, end='')
-# print(pro[count])
